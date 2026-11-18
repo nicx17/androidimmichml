@@ -1,0 +1,1132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      androidimmichml – Distributed Immich Machine Learning on Android
+    </title>
+    <meta
+      name="description"
+      content="Offload Immich machine learning workloads (CLIP Smart Search, Facial Recognition, OCR) to unrooted Android smartphones using Termux and Debian PRoot."
+    />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" type="image/svg+xml" href="logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body class="home-page">
+    <main>
+      <div class="container">
+        <!-- Top Controls / Navigation -->
+        <div class="top-controls page-nav">
+          <nav class="nav-links" aria-label="Main Navigation">
+            <a class="nav-link" href="#features">Features</a>
+            <a class="nav-link" href="#architecture">Architecture</a>
+            <a class="nav-link" href="#requirements">Requirements</a>
+            <a class="nav-link" href="#tested-hardware">Tested Hardware</a>
+            <a class="nav-link" href="#setup">Setup Guide</a>
+            <a class="nav-link" href="#cli">CLI</a>
+            <a class="nav-link" href="#troubleshooting">Troubleshooting</a>
+          </nav>
+          <button
+            id="theme-toggle"
+            class="theme-toggle"
+            type="button"
+            aria-pressed="false"
+          >
+            Light Mode
+          </button>
+        </div>
+
+        <!-- Header (Hero) -->
+        <header>
+          <div class="icon-frame">
+            <img class="hero-icon" src="logo.svg" alt="androidimmichml logo" />
+          </div>
+          <p class="eyebrow">Distributed Machine Learning for Immich</p>
+          <h1>androidimmichml</h1>
+          <p class="subtitle">
+            Offload CLIP Smart Search, Facial Recognition, and OCR workloads to
+            idle, unrooted Android smartphones using Termux and Debian PRoot.
+          </p>
+          <div class="badge-container">
+            <a href="https://immich.app/">
+              <img
+                src="https://img.shields.io/badge/Immich-v3.4.1-1E88E5?style=for-the-badge"
+                alt="Immich v3.4.1"
+              />
+            </a>
+            <a href="https://termux.dev/">
+              <img
+                src="https://img.shields.io/badge/Platform-Android_%7C_Termux-3DDC84?style=for-the-badge&logo=android&logoColor=white"
+                alt="Platform: Android / Termux"
+              />
+            </a>
+            <a href="https://www.debian.org/">
+              <img
+                src="https://img.shields.io/badge/Environment-Debian_PRoot-A81D33?style=for-the-badge&logo=debian&logoColor=white"
+                alt="Environment: Debian PRoot"
+              />
+            </a>
+            <a href="https://github.com/astral-sh/uv">
+              <img
+                src="https://img.shields.io/badge/Package_Manager-uv-DE5FE9?style=for-the-badge&logo=astral&logoColor=white"
+                alt="Package Manager: uv"
+              />
+            </a>
+            <img
+              src="https://img.shields.io/badge/Arch-ARM64_%2F_aarch64-0091BD?style=for-the-badge&logo=arm&logoColor=white"
+              alt="Arch: ARM64"
+            />
+            <img
+              src="https://img.shields.io/badge/Control-Bash_%26_tmux-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white"
+              alt="Control: Bash & tmux"
+            />
+          </div>
+        </header>
+
+        <!-- Hero Split (Overview & Quickstart Install Card) -->
+        <div class="hero-split" id="quickstart">
+          <section class="feature-summary" aria-label="About androidimmichml">
+            <p class="install-label">Overview</p>
+            <p>
+              Self-hosting Immich on a low-power NAS or mini-PC often causes CPU
+              saturation and RAM exhaustion when indexing large photo libraries.
+              <strong>androidimmichml</strong> turns decommissioned smartphones
+              into a lightweight, remote machine learning cluster across your
+              local network.
+            </p>
+            <ul class="summary-points">
+              <li>
+                Zero root required: runs in user space using Termux and Debian
+                PRoot
+              </li>
+              <li>
+                Shut down the heavy Docker ML container on your main server
+              </li>
+              <li>
+                Leverage mobile ARM64 cores with precompiled manylinux wheels
+                via uv
+              </li>
+              <li>
+                Multi-node cluster management with automated primary and
+                failover routing
+              </li>
+            </ul>
+          </section>
+
+          <section class="install-card">
+            <div class="install-header">
+              <p class="install-label">Quick Installation</p>
+            </div>
+            <div class="install-grid">
+              <article class="install-method">
+                <div class="method-header">
+                  <p class="method-title">1. Phone Setup (Termux)</p>
+                  <button
+                    class="copy-button"
+                    type="button"
+                    data-copy-target="cmd-phone"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="cmd-phone">pkg update -y &amp;&amp; pkg install -y git
+git clone https://github.com/nicx17/androidimmichml.git
+cd androidimmichml &amp;&amp; chmod +x setup-phone.sh &amp;&amp; ./setup-phone.sh</code></pre>
+              </article>
+
+              <article class="install-method">
+                <div class="method-header">
+                  <p class="method-title">2. Workstation Fleet Start</p>
+                  <button
+                    class="copy-button"
+                    type="button"
+                    data-copy-target="cmd-workstation"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="cmd-workstation">git clone https://github.com/nicx17/androidimmichml.git &amp;&amp; cd androidimmichml
+cp .env.example .env &amp;&amp; nano .env
+./cluster-ctl.sh sync-env &amp;&amp; ./cluster-ctl.sh start</code></pre>
+              </article>
+            </div>
+            <p class="install-note">
+              For detailed parameter configuration and full step-by-step
+              instructions, see the
+              <a href="#setup">Setup Guide</a> below.
+            </p>
+          </section>
+        </div>
+
+        <!-- Features Section -->
+        <section
+          class="info-section"
+          id="features"
+          aria-labelledby="features-heading"
+        >
+          <h2 id="features-heading">Features</h2>
+          <div class="feature-grid">
+            <article>
+              <h3>Unrooted Userland</h3>
+              <p>
+                Runs entirely in unprivileged Android user space using standard
+                Termux and Debian PRoot. No bootloader unlocking, rooting, or
+                voided device warranties.
+              </p>
+            </article>
+
+            <article>
+              <h3>Server Resource Relief</h3>
+              <p>
+                Comment out the resource-intensive
+                <code>immich-machine-learning</code> container on your NAS or
+                mini-PC, eliminating server memory spikes and thermal
+                throttling.
+              </p>
+            </article>
+
+            <article>
+              <h3>ARM64 Mobile Performance</h3>
+              <p>
+                Modern mobile ARM64 cores execute ONNX INT8 and FP32 operations
+                with rapid efficiency, matching or outperforming low-power
+                Celeron/Atom NAS CPUs.
+              </p>
+            </article>
+
+            <article>
+              <h3>Precompiled Binary Wheels</h3>
+              <p>
+                Debian PRoot provides a standard <code>glibc</code> (manylinux)
+                environment where Astral <code>uv</code> syncs precompiled ARM64
+                wheels in seconds without local C++ compilation.
+              </p>
+            </article>
+
+            <article>
+              <h3>Remote Cluster Management</h3>
+              <p>
+                The included <code>cluster-ctl.sh</code> script coordinates
+                health checks, restarts, environment synchronization, and live
+                console logging across all devices via SSH.
+              </p>
+            </article>
+
+            <article>
+              <h3>Automated Server Failover</h3>
+              <p>
+                Register multiple smartphone endpoints inside Immich Machine
+                Learning settings for prioritized primary and secondary failover
+                over your local Wi-Fi LAN.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <!-- Architecture Section -->
+        <section
+          class="info-section"
+          id="architecture"
+          aria-labelledby="arch-heading"
+        >
+          <div class="section-header-split">
+            <div>
+              <h2 id="arch-heading">System Architecture &amp; PTY Flow</h2>
+              <p class="section-subhead">
+                Authentic pseudo-terminal execution from control workstation to
+                Uvicorn.
+              </p>
+            </div>
+          </div>
+
+          <div class="feature-grid">
+            <article>
+              <h3>Stage 01: Workstation Control Node</h3>
+              <p>
+                <code>cluster-ctl.sh</code> sources local
+                <code>.env</code> parameters and communicates with phone
+                endpoints concurrently over SSH port 8022 with connection
+                timeout protection.
+              </p>
+            </article>
+
+            <article>
+              <h3>Stage 02: Native Termux PTY</h3>
+              <p>
+                Acquires an Android wake-lock and allocates an authentic
+                <code>/dev/pts/X</code> PTY inside a detached
+                <code>tmux</code> session, avoiding PRoot pipe sanitization
+                errors.
+              </p>
+            </article>
+
+            <article>
+              <h3>Stage 03: Debian proot-distro</h3>
+              <p>
+                Provides a standard <code>glibc</code> userland, applies
+                <code>UV_LINK_MODE=copy</code> to bypass SELinux link
+                restrictions, and sources <code>/root/immich-ml.env</code>.
+              </p>
+            </article>
+
+            <article>
+              <h3>Stage 04: Uvicorn immich-ml Service</h3>
+              <p>
+                Listens on port 3003, caches Hugging Face ONNX models in
+                <code>/root/ml-cache</code>, and processes Immich server
+                <code>/predict</code> requests with automatic crash respawn.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <!-- System Requirements -->
+        <section
+          class="info-section"
+          id="requirements"
+          aria-labelledby="req-heading"
+        >
+          <div class="section-header-split">
+            <div>
+              <h2 id="req-heading">System Requirements</h2>
+              <p class="section-subhead">
+                Hardware prerequisites for reliable continuous model inference.
+              </p>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Requirement</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Architecture</strong></td>
+                  <td>64-bit ARM</td>
+                  <td>
+                    <code>aarch64</code> / <code>arm64-v8a</code> (32-bit ARM is
+                    unsupported).
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Physical RAM</strong></td>
+                  <td>6 GB min / 8 GB+ rec.</td>
+                  <td>
+                    Required to load CLIP, ArcFace, and OCR models concurrently
+                    without OOM triggers.
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Flash Storage</strong></td>
+                  <td>5 GB+ Free Space</td>
+                  <td>
+                    Debian rootfs (~1.2 GB), virtualenv packages (~1.5 GB), and
+                    cached ONNX models (~2 GB).
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Power &amp; Battery</strong></td>
+                  <td>Continuous Power</td>
+                  <td>
+                    Battery charge protection (capping at 80–85%) or bypass
+                    charging is strongly advised.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="warning-callout">
+            <strong
+              >CRITICAL REQUIREMENT: Turn OFF RAM Plus / Virtual RAM</strong
+            >
+            <p>
+              You <strong>must turn off RAM Plus</strong> (or any "Memory
+              Extension / Virtual Swap" feature) in your phone settings. Virtual
+              RAM swaps active memory pages to internal UFS flash storage.
+              During intense ONNX matrix operations, paging to flash causes
+              severe I/O latency stalls, spikes CPU wait times, accelerates
+              flash degradation, and triggers Android Low Memory Killer (LMK)
+              paging storms.
+            </p>
+          </div>
+        </section>
+
+        <!-- Tested Hardware & Validated Models -->
+        <section
+          class="info-section"
+          id="tested-hardware"
+          aria-labelledby="hw-heading"
+        >
+          <div class="section-header-split">
+            <div>
+              <h2 id="hw-heading">Tested Hardware &amp; Validated Models</h2>
+              <p class="section-subhead">
+                Verified production hardware testbeds and tested machine
+                learning models.
+              </p>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Device</th>
+                  <th>Physical RAM</th>
+                  <th>Virtual RAM (RAM Plus)</th>
+                  <th>Cluster Role</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Samsung Galaxy S20+</strong></td>
+                  <td>12 GB LPDDR5</td>
+                  <td><span class="status-pill alert">Disabled (Off)</span></td>
+                  <td>Primary ML Node</td>
+                  <td><span class="status-pill verified">Verified</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Samsung Galaxy S21 FE</strong></td>
+                  <td>8 GB LPDDR5</td>
+                  <td><span class="status-pill alert">Disabled (Off)</span></td>
+                  <td>Failover Secondary Node</td>
+                  <td><span class="status-pill verified">Verified</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="feature-grid" style="margin-top: 1.25rem">
+            <article>
+              <p class="eyebrow">Semantic Search</p>
+              <h3>Smart Search</h3>
+              <p>
+                <strong>32-bit Model (ViT-B-32)</strong><br />
+                Full 32-bit embedding model for natural language photo and
+                concept indexing.
+              </p>
+            </article>
+
+            <article>
+              <p class="eyebrow">Biometric Clustering</p>
+              <h3>Facial Recognition</h3>
+              <p>
+                <strong>antelopev2 Suite</strong><br />
+                InsightFace SCRFD face detection and ArcFace deep representation
+                embeddings.
+              </p>
+            </article>
+
+            <article>
+              <p class="eyebrow">Text Extraction</p>
+              <h3>OCR Pipeline</h3>
+              <p>
+                <strong>English Mobile Model</strong><br />
+                Lightweight RapidOCR mobile model optimized for text detection
+                and character recognition.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <!-- Step-by-Step Setup Guide -->
+        <section
+          class="info-section"
+          id="setup"
+          aria-labelledby="setup-heading"
+        >
+          <div class="section-header-split">
+            <div>
+              <h2 id="setup-heading">Step-by-Step Setup Guide</h2>
+              <p class="section-subhead">
+                End-to-end setup instructions from initial phone provisioning to
+                Immich server integration.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 1 -->
+          <article class="step-card">
+            <div class="step-header">
+              <span class="step-badge">Step 01</span>
+              <h3 class="step-title">Phone Node Installation (Termux)</h3>
+            </div>
+            <p class="step-description">
+              On each Android smartphone, install <strong>Termux</strong> from
+              <a
+                href="https://f-droid.org/en/packages/com.termux/"
+                target="_blank"
+                rel="noopener"
+                >F-Droid</a
+              >
+              or
+              <a
+                href="https://github.com/termux/termux-app/releases"
+                target="_blank"
+                rel="noopener"
+                >GitHub Releases</a
+              >
+              (never use outdated Google Play builds). Set Termux Battery to
+              <strong>Unrestricted</strong> in Android Settings. Then clone the
+              repository and run the automated installer:
+            </p>
+            <div class="install-method">
+              <div class="method-header">
+                <p class="method-title">Run inside native Termux</p>
+                <button
+                  class="copy-button"
+                  type="button"
+                  data-copy-target="cmd-step1"
+                >
+                  Copy
+                </button>
+              </div>
+              <pre><code id="cmd-step1">pkg update -y &amp;&amp; pkg install -y git
+git clone https://github.com/nicx17/androidimmichml.git
+cd androidimmichml
+chmod +x setup-phone.sh
+./setup-phone.sh</code></pre>
+            </div>
+            <p class="install-note">
+              <code>setup-phone.sh</code> provisions a Debian
+              <code>proot-distro</code> container, installs Astral
+              <code>uv</code>, clones Immich at the configured tag, configures
+              <code>UV_LINK_MODE=copy</code> to bypass SELinux hardlink blocks,
+              syncs precompiled ARM64 CPU wheels without local C++ compilation,
+              and writes the auto-respawning
+              <code>/root/start-ml.sh</code> daemon wrapper.
+            </p>
+          </article>
+
+          <!-- Step 2 -->
+          <article class="step-card">
+            <div class="step-header">
+              <span class="step-badge">Step 02</span>
+              <h3 class="step-title">Enable Remote SSH on Phone</h3>
+            </div>
+            <p class="step-description">
+              After the installation script finishes, configure SSH access and
+              ensure the Android Linux kernel does not suspend CPU execution
+              when the screen turns off:
+            </p>
+            <div class="install-method">
+              <div class="method-header">
+                <p class="method-title">Run in native Termux</p>
+                <button
+                  class="copy-button"
+                  type="button"
+                  data-copy-target="cmd-step2"
+                >
+                  Copy
+                </button>
+              </div>
+              <pre><code id="cmd-step2"># 1. Set a password for remote SSH access
+passwd
+
+# 2. Prevent Android from sleeping the CPU during inference
+termux-wake-lock
+
+# 3. Start the OpenSSH daemon on port 8022
+sshd</code></pre>
+            </div>
+            <p class="install-note">
+              Find your phone's local IPv4 address in Android Settings (e.g.
+              <strong
+                >Settings &gt; Network &amp; internet &gt; Wi-Fi &gt; IP
+                address</strong
+              >, such as <code>192.168.0.210</code>). Setting a DHCP reservation
+              on your Wi-Fi router is recommended. Repeat this on every phone
+              node in your cluster.
+            </p>
+          </article>
+
+          <!-- Step 3 -->
+          <article class="step-card">
+            <div class="step-header">
+              <span class="step-badge">Step 03</span>
+              <h3 class="step-title">
+                Workstation Setup &amp; Configuring .env
+              </h3>
+            </div>
+            <p class="step-description">
+              On your main workstation, control server, or PC, clone the
+              repository and configure your cluster environment parameters:
+            </p>
+            <div class="install-method">
+              <div class="method-header">
+                <p class="method-title">Clone and initialize .env</p>
+                <button
+                  class="copy-button"
+                  type="button"
+                  data-copy-target="cmd-step3"
+                >
+                  Copy
+                </button>
+              </div>
+              <pre><code id="cmd-step3">git clone https://github.com/nicx17/androidimmichml.git
+cd androidimmichml
+
+# Create active environment configuration from template
+cp .env.example .env
+nano .env</code></pre>
+            </div>
+
+            <h4
+              style="
+                margin: 1.25rem 0 0.5rem;
+                font-size: 1rem;
+                color: var(--text-main);
+              "
+            >
+              Configuration Parameters Reference
+            </h4>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Variable</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>NODES</code></td>
+                    <td><code>"192.168.0.210 192.168.0.211"</code></td>
+                    <td>
+                      Space-separated list of phone SSH hostnames (from
+                      <code>~/.ssh/config</code>) or LAN IPv4 addresses.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>SSH_PORT</code></td>
+                    <td><code>8022</code></td>
+                    <td>
+                      Termux OpenSSH listening port on your Android devices.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>IMMICH_VERSION</code></td>
+                    <td><code>"v3.4.1"</code></td>
+                    <td>
+                      Git tag of Immich to deploy.
+                      <strong>Must match your main immich-server version</strong
+                      >.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>ML_HOST</code></td>
+                    <td><code>"0.0.0.0"</code></td>
+                    <td>Bind address for Uvicorn inside Debian.</td>
+                  </tr>
+                  <tr>
+                    <td><code>ML_PORT</code></td>
+                    <td><code>3003</code></td>
+                    <td>
+                      Port exposed by <code>immich-ml</code> for HTTP inference
+                      requests.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>MACHINE_LEARNING_CACHE_FOLDER</code></td>
+                    <td><code>"/root/ml-cache"</code></td>
+                    <td>
+                      Persistent directory inside Debian where downloaded
+                      Hugging Face ONNX models are stored.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>MACHINE_LEARNING_WORKERS</code></td>
+                    <td><code>1</code></td>
+                    <td>
+                      Number of Uvicorn worker processes (keep at
+                      <code>1</code> on mobile devices to prevent RAM
+                      exhaustion).
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>MACHINE_LEARNING_MODEL_TTL</code></td>
+                    <td><code>0</code></td>
+                    <td>
+                      Model idle timeout in seconds (<code>0</code> = keep in
+                      RAM permanently; <code>300</code> = unload after 5m and
+                      auto-respawn).
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>MACHINE_LEARNING_MODEL_INTRA_OP_THREADS</code>
+                    </td>
+                    <td><code>0</code></td>
+                    <td>
+                      ONNX Runtime intra-op CPU threads (<code>0</code> =
+                      automatic; set to <code>2</code> or <code>4</code> to
+                      limit heat).
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="install-note" style="margin-top: 1rem">
+              Once you have saved your <code>.env</code> file, push the
+              parameters to all phone nodes over SSH:
+            </p>
+
+            <div class="install-method" style="margin-top: 0.65rem">
+              <div class="method-header">
+                <p class="method-title">Push .env to all cluster nodes</p>
+                <button
+                  class="copy-button"
+                  type="button"
+                  data-copy-target="cmd-step3-sync"
+                >
+                  Copy
+                </button>
+              </div>
+              <pre><code id="cmd-step3-sync">chmod +x cluster-ctl.sh
+./cluster-ctl.sh sync-env</code></pre>
+            </div>
+          </article>
+
+          <!-- Step 4 -->
+          <article class="step-card">
+            <div class="step-header">
+              <span class="step-badge">Step 04</span>
+              <h3 class="step-title">
+                Launch &amp; Monitor Cluster (cluster-ctl.sh)
+              </h3>
+            </div>
+            <p class="step-description">
+              From your workstation, launch and verify the cluster across all
+              devices with one command:
+            </p>
+            <div class="install-method">
+              <div class="method-header">
+                <p class="method-title">Start and check health</p>
+                <button
+                  class="copy-button"
+                  type="button"
+                  data-copy-target="cmd-step4"
+                >
+                  Copy
+                </button>
+              </div>
+              <pre><code id="cmd-step4"># Start immich-ml in background tmux sessions across all configured NODES
+./cluster-ctl.sh start
+
+# Check HTTP /ping health across all NODES (verifies ONLINE status)
+./cluster-ctl.sh status</code></pre>
+            </div>
+            <p class="install-note">
+              <code>cluster-ctl.sh</code> starts a native Termux
+              <code>tmux</code> session that allocates a real
+              <code>/dev/pts/X</code> PTY before entering PRoot. This guarantees
+              that processes stay alive when you disconnect SSH and eliminates
+              PRoot pipe sanitization errors.
+            </p>
+          </article>
+
+          <!-- Step 5 -->
+          <article class="step-card">
+            <div class="step-header">
+              <span class="step-badge">Step 05</span>
+              <h3 class="step-title">
+                Connect Immich Web UI &amp; Turn Off Server Container
+              </h3>
+            </div>
+            <p class="step-description">
+              Direct your Immich server to your phone cluster and disable the
+              heavy Docker ML container:
+            </p>
+
+            <div
+              class="faq-item"
+              style="
+                margin-bottom: 1rem;
+                border: 1px solid var(--border-color);
+                border-radius: 14px;
+                padding: 1rem;
+                background: var(--surface-raised);
+              "
+            >
+              <h4
+                style="
+                  margin: 0 0 0.5rem;
+                  color: var(--text-main);
+                  font-size: 1rem;
+                "
+              >
+                1. Register Phone Endpoints in Immich Web UI
+              </h4>
+              <ol
+                style="
+                  margin: 0;
+                  padding-left: 1.25rem;
+                  color: var(--text-muted);
+                  font-size: 0.95rem;
+                  line-height: 1.6;
+                "
+              >
+                <li>
+                  Open your Immich web interface and navigate to
+                  <strong
+                    >Administration &gt; Settings &gt; Machine Learning
+                    Settings</strong
+                  >.
+                </li>
+                <li>
+                  Replace <code>http://immich-machine-learning:3003</code> with
+                  your primary phone endpoint:
+                  <code>http://192.168.0.210:3003</code>.
+                </li>
+                <li>
+                  Click <strong>Add URL</strong> and enter your secondary phone
+                  endpoint for high-availability failover:
+                  <code>http://192.168.0.211:3003</code>.
+                </li>
+                <li>Click <strong>Save</strong>.</li>
+              </ol>
+            </div>
+
+            <div class="install-method">
+              <div class="method-header">
+                <p class="method-title">
+                  2. Disable Docker ML container on main server
+                </p>
+                <button
+                  class="copy-button"
+                  type="button"
+                  data-copy-target="cmd-step5"
+                >
+                  Copy
+                </button>
+              </div>
+              <pre><code id="cmd-step5"># In your server's docker-compose.yml, comment out the immich-machine-learning service block:
+# immich-machine-learning:
+#   container_name: immich_machine_learning
+#   image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+#   ...
+
+# Recreate containers to apply changes
+docker compose up -d --remove-orphans</code></pre>
+            </div>
+            <p class="install-note">
+              Your server will now route all facial recognition, Smart Search,
+              and OCR jobs across your smartphone cluster.
+            </p>
+          </article>
+        </section>
+
+        <!-- CLI Command Reference -->
+        <section class="info-section" id="cli" aria-labelledby="cli-heading">
+          <div class="section-header-split">
+            <div>
+              <h2 id="cli-heading">Cluster CLI Reference</h2>
+              <p class="section-subhead">
+                Operations and syntax supported by cluster-ctl.sh.
+              </p>
+            </div>
+          </div>
+
+          <div class="install-card">
+            <div class="install-grid">
+              <article class="install-method">
+                <div class="method-header">
+                  <p class="method-title">Start Cluster</p>
+                  <button
+                    class="copy-button"
+                    type="button"
+                    data-copy-target="cmd-start"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="cmd-start">./cluster-ctl.sh start</code></pre>
+                <p class="method-note">
+                  Acquires wake-lock and launches detached tmux sessions across
+                  all nodes.
+                </p>
+              </article>
+
+              <article class="install-method">
+                <div class="method-header">
+                  <p class="method-title">Health Status</p>
+                  <button
+                    class="copy-button"
+                    type="button"
+                    data-copy-target="cmd-status"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="cmd-status">./cluster-ctl.sh status</code></pre>
+                <p class="method-note">
+                  Probes HTTP /ping endpoint on port 3003 with a 3-second
+                  timeout.
+                </p>
+              </article>
+
+              <article class="install-method">
+                <div class="method-header">
+                  <p class="method-title">Restart &amp; Sync Environment</p>
+                  <button
+                    class="copy-button"
+                    type="button"
+                    data-copy-target="cmd-restart"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="cmd-restart">./cluster-ctl.sh restart</code></pre>
+                <p class="method-note">
+                  Pushes updated .env variables, allows sockets to release, and
+                  respawns sessions.
+                </p>
+              </article>
+
+              <article class="install-method">
+                <div class="method-header">
+                  <p class="method-title">Attach Console Logs</p>
+                  <button
+                    class="copy-button"
+                    type="button"
+                    data-copy-target="cmd-logs"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="cmd-logs">./cluster-ctl.sh logs 192.168.0.210</code></pre>
+                <p class="method-note">
+                  Attaches to live Uvicorn console (press CTRL+B then D to
+                  detach).
+                </p>
+              </article>
+
+              <article class="install-method">
+                <div class="method-header">
+                  <p class="method-title">Stop Cluster</p>
+                  <button
+                    class="copy-button"
+                    type="button"
+                    data-copy-target="cmd-stop"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <pre><code id="cmd-stop">./cluster-ctl.sh stop</code></pre>
+                <p class="method-note">
+                  Terminates tmux sessions and releases Android wake-locks on
+                  all nodes.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- Numbered Links Blocks -->
+        <section class="links-container" aria-label="Repository links">
+          <a class="link-block" href="#setup">
+            <span class="link-icon">01</span>
+            <span class="link-copy">
+              <strong>Setup Guide</strong>
+              <span>Step-by-step phone provisioning and .env setup.</span>
+            </span>
+          </a>
+
+          <a class="link-block" href="#requirements">
+            <span class="link-icon">02</span>
+            <span class="link-copy">
+              <strong>System Requirements</strong>
+              <span>ARM64 architecture, RAM, and storage needs.</span>
+            </span>
+          </a>
+
+          <a class="link-block" href="#tested-hardware">
+            <span class="link-icon">03</span>
+            <span class="link-copy">
+              <strong>Tested Hardware</strong>
+              <span>Validated Galaxy S20+ and S21 FE benchmarks.</span>
+            </span>
+          </a>
+
+          <a class="link-block" href="#cli">
+            <span class="link-icon">04</span>
+            <span class="link-copy">
+              <strong>CLI Commands</strong>
+              <span>cluster-ctl.sh management operations.</span>
+            </span>
+          </a>
+
+          <a class="link-block" href="#troubleshooting">
+            <span class="link-icon">05</span>
+            <span class="link-copy">
+              <strong>Troubleshooting</strong>
+              <span>Solutions for SELinux, DRM, and PTY errors.</span>
+            </span>
+          </a>
+        </section>
+
+        <!-- Troubleshooting FAQ -->
+        <section
+          class="info-section"
+          id="troubleshooting"
+          aria-labelledby="faq-heading"
+        >
+          <h2 id="faq-heading">Troubleshooting Reference</h2>
+          <div class="faq-list">
+            <div class="faq-item">
+              <h3>Hardlink error: Operation not permitted (os error 1)</h3>
+              <p>
+                Android SELinux prohibits <code>link()</code> syscalls inside
+                PRoot. Export <code>UV_LINK_MODE=copy</code> prior to syncing
+                dependencies with <code>uv sync</code>. This is handled
+                automatically in <code>setup-phone.sh</code>.
+              </p>
+            </div>
+
+            <div class="faq-item">
+              <h3>Missing Python.h or psutil compilation errors</h3>
+              <p>
+                By default, <code>uv sync</code> installs development dependency
+                groups including <code>locust</code> and <code>psutil</code>.
+                Always supply <code>--no-dev</code> to avoid building
+                development packages.
+              </p>
+            </div>
+
+            <div class="faq-item">
+              <h3>GPU discovery error: Permission denied "/sys/class/drm"</h3>
+              <p>
+                ONNX Runtime probes Direct Rendering Manager devices at startup.
+                Android blocks unprivileged access to DRM sysfs. This warning is
+                completely harmless; inference safely executes on ARM64 CPU
+                cores.
+              </p>
+            </div>
+
+            <div class="faq-item">
+              <h3>Worker shutdown: Shutting down due to inactivity</h3>
+              <p>
+                Immich ML defaults to a 300-second idle timeout
+                (<code>MACHINE_LEARNING_MODEL_TTL=300</code>). When the timeout
+                expires, it sends SIGINT to reclaim memory. Set
+                <code>MACHINE_LEARNING_MODEL_TTL=0</code> to keep models in RAM,
+                or rely on the automatic respawn loop in
+                <code>start-ml.sh</code>.
+              </p>
+            </div>
+
+            <div class="faq-item">
+              <h3>PRoot warning: can't sanitize binding "/proc/self/fd/0"</h3>
+              <p>
+                PRoot requires an authentic pseudo-terminal. Always invoke PRoot
+                inside a native Termux
+                <code>tmux</code> session allocated via
+                <code>TERM=xterm-256color tmux new-session -d</code> rather than
+                executing PRoot directly over a raw SSH pipe.
+              </p>
+            </div>
+
+            <div class="faq-item">
+              <h3>Termux process terminated in background</h3>
+              <p>
+                On Android 12+, disable the Phantom Process Killer via ADB:
+                <code
+                  >adb shell "/system/bin/device_config put activity_manager
+                  max_phantom_processes 2147483647"</code
+                >.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-inner">
+        <div>
+          <span class="footer-label">androidimmichml</span> &mdash; Distributed
+          Immich Machine Learning on Android.
+        </div>
+        <div>
+          <a class="footer-link" href="https://github.com/nicx17">nicx.dev</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Inline Script matching mimick.nicx.dev -->
+    <script>
+      const root = document.documentElement;
+      const themeToggle = document.getElementById("theme-toggle");
+      const themeMeta = document.querySelector('meta[name="theme-color"]');
+      const themeKey = "androidimmichml-theme";
+
+      const setTheme = (theme) => {
+        const isLight = theme === "light";
+        root.dataset.theme = isLight ? "light" : "dark";
+        if (themeMeta) {
+          themeMeta.setAttribute("content", isLight ? "#f8f5ef" : "#000000");
+        }
+        if (themeToggle) {
+          themeToggle.textContent = isLight ? "Dark Mode" : "Light Mode";
+          themeToggle.setAttribute("aria-pressed", isLight ? "true" : "false");
+        }
+      };
+
+      const savedTheme = localStorage.getItem(themeKey);
+      const prefersLight = globalThis.matchMedia(
+        "(prefers-color-scheme: light)",
+      ).matches;
+      let initialTheme = prefersLight ? "light" : "dark";
+      if (savedTheme === "light" || savedTheme === "dark") {
+        initialTheme = savedTheme;
+      }
+      setTheme(initialTheme);
+
+      if (themeToggle) {
+        themeToggle.addEventListener("click", () => {
+          const nextTheme = root.dataset.theme === "light" ? "dark" : "light";
+          setTheme(nextTheme);
+          localStorage.setItem(themeKey, nextTheme);
+        });
+      }
+
+      document.querySelectorAll(".copy-button").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const targetId = btn.dataset.copyTarget;
+          const codeBlock = targetId ? document.getElementById(targetId) : null;
+          if (!codeBlock) return;
+
+          const originalLabel = btn.textContent;
+          try {
+            await navigator.clipboard.writeText(codeBlock.textContent.trim());
+            btn.textContent = "Copied";
+          } catch {
+            btn.textContent = "Failed";
+          }
+          setTimeout(() => {
+            btn.textContent = originalLabel;
+          }, 1600);
+        });
+      });
+    </script>
+  </body>
+</html>
