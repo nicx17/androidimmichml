@@ -35,8 +35,8 @@ jobs:
 
       - name: Run ShellCheck
         run: |
-          shellcheck -e SC1090,SC1091 cluster-ctl.sh
-          shellcheck -e SC1090,SC1091 setup-phone.sh
+          shellcheck -e SC1090,SC1091,SC2087 cluster-ctl.sh
+          shellcheck -e SC1090,SC1091,SC2087 setup-phone.sh
 
       - name: Verify Environment Parity
         run: |

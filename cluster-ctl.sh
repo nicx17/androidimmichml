@@ -51,7 +51,9 @@ EOF
 sync_node_env() {
     local host="$1"
     echo "==> Syncing .env parameters to $host:/root/immich-ml.env..."
-    ssh -p "$SSH_PORT" -o ConnectTimeout=5 "$host" "proot-distro login debian -- bash -c 'cat > /root/immich-ml.env'" << EOF
+    # Client-side expansion is intentional: workstation variables are populated into the remote environment file.
+    # shellcheck disable=SC2087
+    cat << EOF | ssh -p "$SSH_PORT" -o ConnectTimeout=5 "$host" "proot-distro login debian -- bash -c 'cat > /root/immich-ml.env'"
 ML_HOST="$ML_HOST"
 ML_PORT=$ML_PORT
 MACHINE_LEARNING_CACHE_FOLDER="$MACHINE_LEARNING_CACHE_FOLDER"
